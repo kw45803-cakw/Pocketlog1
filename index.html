@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PocketLog | ระบบบันทึกรายรับ-รายจ่าย</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main class="container">
+
+    <!-- Header -->
+    <header class="header">
+        <h1>💰 PocketLog</h1>
+        <p>แอปติดตามรายรับและรายจ่ายแบบง่าย</p>
+    </header>
+
+    <!-- Summary Dashboard -->
+    <section class="summary-dashboard">
+        <div class="summary-card summary-income">
+            <h3>รายได้รวม</h3>
+            <p class="amount" id="total-income">฿0.00</p>
+        </div>
+
+        <div class="summary-card summary-expense">
+            <h3>ค่าใช้จ่ายทั้งหมด</h3>
+            <p class="amount" id="total-expense">฿0.00</p>
+        </div>
+
+        <div class="summary-card summary-balance">
+            <h3>ยอดคงเหลือสุทธิ</h3>
+            <p class="amount" id="total-balance">฿0.00</p>
+        </div>
+    </section>
+
+    <!-- Summary Period -->
+    <section class="summary-period">
+        <button type="button" class="period-button active" data-period="day">รายวัน</button>
+        <button type="button" class="period-button" data-period="month">รายเดือน</button>
+        <button type="button" class="period-button" data-period="year">รายปี</button>
+    </section>
+
+    <!-- Add Transaction Form -->
+    <section class="form-card">
+        <h2>➕ เพิ่มรายการธุรกรรม</h2>
+
+        <form id="transaction-form">
+            <div class="form-grid">
+
+                <!-- Category -->
+                <div class="form-group">
+                    <label for="category">หมวดหมู่</label>
+                    <select id="category" required>
+                        <option value="">เลือกหมวดหมู่</option>
+                        <option value="Food">อาหาร</option>
+                        <option value="Transportation">การเดินทาง</option>
+                        <option value="Shopping">ช้อปปิ้ง</option>
+                        <option value="Tuition">การศึกษา/ค่าเทอม</option>
+                        <option value="Entertainment">ความบันเทิง</option>
+                        <option value="Other">อื่นๆ</option>
+                    </select>
+                </div>
+
+                <!-- Transaction Type -->
+                <div class="form-group">
+                    <label>ประเภทธุรกรรม</label>
+                    <div class="type-selector">
+                        <div class="type-option income">
+                            <input type="radio" id="income" name="type" value="income">
+                            <label for="income">รายได้</label>
+                        </div>
+                        <div class="type-option expense">
+                            <input type="radio" id="expense" name="type" value="expense" checked>
+                            <label for="expense">ค่าใช้จ่าย</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Amount -->
+                <div class="form-group">
+                    <label for="amount">จำนวน</label>
+                    <input type="number" id="amount" placeholder="ป้อนจำนวนเงิน" min="0.01" step="0.01" required>
+                </div>
+
+                <!-- Date -->
+                <div class="form-group">
+                    <label for="date">วันที่</label>
+                    <input type="date" id="date" required>
+                </div>
+
+                <!-- Description -->
+                <div class="form-group full-width">
+                    <label for="description">คำอธิบาย</label>
+                    <input type="text" id="description" placeholder="เช่น ค่าอาหารกลางวัน ค่าอินเทอร์เน็ต ค่าอุปกรณ์การเรียน" autocomplete="off">
+                </div>
+
+            </div>
+
+            <!-- Save Button -->
+            <button type="submit" id="add-btn" class="btn-primary">บันทึกรายการธุรกรรม</button>
+        </form>
+    </section>
+
+    <!-- Transaction List -->
+    <section class="list-section">
+        <div class="list-header">
+            <h2>📋 ธุรกรรม</h2>
+        </div>
+
+        <!-- Filter -->
+        <div class="transaction-filter">
+            <button type="button" class="filter-button active" data-filter="all">ทั้งหมด</button>
+            <button type="button" class="filter-button" data-filter="income">รายได้</button>
+            <button type="button" class="filter-button" data-filter="expense">ค่าใช้จ่าย</button>
+        </div>
+
+        <!-- Transaction Container -->
+        <section id="transaction-list" class="transaction-list">
+            <!-- แสดงรายการธุรกรรมที่ดึงมาจาก JavaScript -->
+        </section>
+    </section>
+
+</main>
+
+<!-- Edit Transaction Modal -->
+<div id="edit-modal" class="material-modal" aria-hidden="true">
+    <div class="material-modal__backdrop" data-modal-close></div>
+    <section class="material-modal__surface" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
+        <header class="material-modal__header">
+            <div class="material-modal__title-group">
+                <span class="material-modal__icon" aria-hidden="true">✏️</span>
+                <div>
+                    <h2 id="edit-modal-title">แก้ไขรายการธุรกรรม</h2>
+                    <p>อัปเดตข้อมูลและกดบันทึกการเปลี่ยนแปลง</p>
+                </div>
+            </div>
+            <button type="button" id="close-edit-btn" class="material-modal__close" aria-label="Close edit window">&times;</button>
+        </header>
+
+        <form id="edit-form">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="edit-category">หมวดหมู่</label>
+                    <select id="edit-category" required>
+                        <option value="Food">อาหาร</option>
+                        <option value="Transportation">การเดินทาง</option>
+                        <option value="Shopping">ช้อปปิ้ง</option>
+                        <option value="Tuition">การศึกษา/ค่าเทอม</option>
+                        <option value="Entertainment">ความบันเทิง</option>
+                        <option value="Other">อื่นๆ</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit-amount">จำนวนเงิน</label>
+                    <input type="number" id="edit-amount" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-date">วันที่</label>
+                    <input type="date" id="edit-date" required>
+                </div>
+                <div class="form-group full-width">
+                    <label for="edit-description">คำอธิบาย</label>
+                    <input type="text" id="edit-description">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" id="cancel-edit-btn">ยกเลิก</button>
+                <button type="submit" id="confirm-edit-btn">บันทึกการแก้ไข</button>
+            </div>
+        </form>
+    </section>
+</div>
+
+<!-- เชื่อมต่อไฟล์ JavaScript ฝั่งหน้าเว็บ -->
+<script src="script.js"></script>
+
+</body>
+</html>
